@@ -4,7 +4,7 @@
 #Student name: Rafia Bushra
 #Date: 4/13/2020
 
-
+import pdb
 from random import Random  
 import numpy as np
 
@@ -68,8 +68,22 @@ def neighborhood(x):
 
 #create the initial solution
 def initial_solution():
-    x = []    
+    
+    # ratio of valyes to weights 
+    r = np.array(value)/np.array(weights) 
+    sorted_ind = np.argsort(r)[::-1]    #sorting r in descending order
+    sorted_w = np.array(weights)[sorted_ind]      #sorting weights array according to sorted ratio      
+    
+    #indices of 1s in solution array
+    ones_ind = [j for (i,j) in enumerate(sorted_ind) if sum(sorted_w[:i+1])<maxWeight]
+    
+    #creating initial solution
+    x = np.zeros(n, dtype=int)
+    x[ones_ind] = 1
+    pdb.set_trace()
     return x
+
+initial_solution()
 
 
 
