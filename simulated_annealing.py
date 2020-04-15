@@ -84,29 +84,40 @@ def initial_solution():
     return x
 
 
-t = 15000  #setting an initial temperature
-M = 10    #number of iterations at each temperature
+t = 100000  #setting an initial temperature
+M = 100    #number of iterations at each temperature
 k = 0     #counter to eep track of main loop
 
 
-x_curr = initial_solution()  #x_curr will hold the current solution 
-#x_curr = np.zeros(n,dtype=int)
+x_init = initial_solution()  #The very first or the initial solution 
+f_init = evaluate(x_init)    #evaluation of x_init
+x_curr = np.copy(x_init)     #Current solution. Starts out with x_init
 f_curr = evaluate(x_curr)    #f_curr will hold the evaluation of the current soluton 
 print("initial solution {}".format(f_curr[0]))
 
+
+#storing information for the feasible solutions
+f_value = []
+f_weight = []
+f_solution = []
+
 #varaible to record the number of solutions evaluated
 solutionsChecked = 0
-
 
 
 #begin local search overall logic ----------------
 done = 0
     
 while done == 0:
+    
+    #stopping criterion
+    if t<1:
+        done = 1
+    
     m = 0        
     while m<M:
         solutionsChecked += 1
-        print("k = {}, m = {}, s = {} \n".format(k,m,solutionsChecked))
+        #print("k = {}, m = {}, s = {} \n".format(k,m,solutionsChecked))
 
         N = neighborhood(x_curr)            #create a list of all neighbors in the neighborhood of x_curr
         s = N[myPRNG.randint(0,len(N)-1)]   #A randomly selected neighbor
@@ -122,6 +133,10 @@ while done == 0:
         if eval_s[0] >= f_curr[0]:
             x_curr = np.copy(s)
             f_curr = np.copy(eval_s)
+
+            f_solution.append(x_curr)
+            f_value.append(f_curr[0])
+            f_weight.append(f_curr[1])
         else:
             p = np.exp(-(f_curr[0]-eval_s[0])/t)
             test_p = myPRNG.uniform(0,1)
@@ -129,16 +144,18 @@ while done == 0:
             if test_p<=p:
                 x_curr = np.copy(s)
                 f_curr = np.copy(eval_s)
+
+                f_solution.append(x_curr)
+                f_value.append(f_curr[0])
+                f_weight.append(f_curr[1])
         m += 1
     
-    #stopping criterion
-    if k==10:
-        done = 1
+    
     #incrementing k and updating functions of k
     k += 1
     t = t/(1+k)  #cauchy cooling function
 
-print("final solution {}".format(f_curr[0]))
+print("final solution {}".format(np.max(f_value)))
 print("solutions checked: {}".format(solutionsChecked))
 
 """
