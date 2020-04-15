@@ -45,6 +45,7 @@ def evaluate(x):
     
     if totalWeight > maxWeight:
         raise ValueError
+
     return [totalValue, totalWeight]   #returns a list of both total value and total weight
           
        
@@ -55,7 +56,7 @@ def neighborhood(x):
     nbrhood = []     
     
     for i in range(0,n):
-        nbrhood.append(x[:])
+        nbrhood.append(np.copy(x))
         if nbrhood[i][i] == 1:
             nbrhood[i][i] = 0
         else:
@@ -83,12 +84,13 @@ def initial_solution():
     return x
 
 
-t = 1000  #setting an initial temperature
+t = 15000  #setting an initial temperature
 M = 10    #number of iterations at each temperature
 k = 0     #counter to eep track of main loop
 
 
 x_curr = initial_solution()  #x_curr will hold the current solution 
+#x_curr = np.zeros(n,dtype=int)
 f_curr = evaluate(x_curr)    #f_curr will hold the evaluation of the current soluton 
 print("initial solution {}".format(f_curr[0]))
 
@@ -103,6 +105,9 @@ done = 0
 while done == 0:
     m = 0        
     while m<M:
+        solutionsChecked += 1
+        print("k = {}, m = {}, s = {} \n".format(k,m,solutionsChecked))
+
         N = neighborhood(x_curr)            #create a list of all neighbors in the neighborhood of x_curr
         s = N[myPRNG.randint(0,len(N)-1)]   #A randomly selected neighbor
         
@@ -118,8 +123,9 @@ while done == 0:
             x_curr = np.copy(s)
             f_curr = np.copy(eval_s)
         else:
-            p = np.exp(-(f_curr-eval_s[0])/t)
+            p = np.exp(-(f_curr[0]-eval_s[0])/t)
             test_p = myPRNG.uniform(0,1)
+            
             if test_p<=p:
                 x_curr = np.copy(s)
                 f_curr = np.copy(eval_s)
@@ -133,6 +139,7 @@ while done == 0:
     t = t/(1+k)  #cauchy cooling function
 
 print("final solution {}".format(f_curr[0]))
+print("solutions checked: {}".format(solutionsChecked))
 
 """
 print ("\nFinal number of solutions checked: ", solutionsChecked)
