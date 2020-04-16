@@ -42,25 +42,31 @@ def evaluate(x):
     totalWeight = np.dot(a,c)    #compute the weight value of the knapsack selection
     
     if totalWeight > maxWeight:
-        print ("Oh no! The solution is infeasible!  What to do?  What to do?")   #you will probably want to change this...
+        totalValue = np.nan
 
     return [totalValue, totalWeight]   #returns a list of both total value and total weight
           
        
 
 #1-flip neighborhood of solution x         
-def neighborhood(x, k=5):
+def neighborhood(x, k=1):
         
     nbrhood = []     
     
     for i in range(0,n):
         nbrhood.append(np.copy(x))
         for j in range(k):
-            if nbrhood[i][i+j] == 1:
-                nbrhood[i][i+j] = 0
+            #setting up circular addition
+            if (i+j)>0:
+                a = i+j-150
             else:
-                nbrhood[i][i+j] = 1
-        
+                a = i+j
+
+            if nbrhood[i][a] == 1:
+                nbrhood[i][a] = 0
+            else:
+                nbrhood[i][a] = 1
+            
     return nbrhood
           
 
@@ -91,38 +97,38 @@ def initial_solution():
 #varaible to record the number of solutions evaluated
 solutionsChecked = 0
 
-x_curr = initial_solution()  #x_curr will hold the current solution 
-x_best = x_curr[:]           #x_best will hold the best solution 
-f_curr = evaluate(x_curr)   #f_curr will hold the evaluation of the current soluton 
-f_best = f_curr[:]
+#initializing current solution
+x_curr = initial_solution() 
+f_curr = evaluate(x_curr)
 
 
 
 #begin local search overall logic ----------------
-done = 0
+k_max = 5   #total number of k-flip neighborhoods
+k = 1       #starting with 1-flip neighborhood 
     
-while done == 0:
-            
-    Neighborhood = neighborhood(x_curr)   #create a list of all neighbors in the neighborhood of x_curr
+while k<=k_max:
+    print("checking {}-flip neighborhood".format(k))     
     
-    for s in Neighborhood:                #evaluate every member in the neighborhood of x_curr
-        solutionsChecked = solutionsChecked + 1
-        if evaluate(s)[0] > f_best[0]:   
-            x_best = s[:]                 #find the best member and keep track of that solution
-            f_best = evaluate(s)[:]       #and store its evaluation  
+    Neighborhood = neighborhood(x_curr, k)   #create a list of all neighbors in the neighborhood of x_curr
+    solutionsChecked += len(Neighborhood)
+
+    s_values = [evaluate(s)[0] for s in Neighborhood]
+    s = Neighborhood[np.nanargmax(s_values)]  #Best neighbor in the current neighborhood
+    f_s = evaluate(s)
     
-    if f_best == f_curr:               #if there were no improving solutions in the neighborhood
-        done = 1
+    #if this neighbor is better than current solution, accept this move
+    if  f_s[0] < f_curr[0]:        
+        x_curr = np.copy(s)        
+        f_curr = np.copy(f_s)
+        k = 1
     else:
+        k += 1
+
+    print("current best solution {}".format(f_curr[0]))
         
-        x_curr = x_best[:]         #else: move to the neighbor solution and continue
-        f_curr = f_best[:]         #evalute the current solution
-        
-        print ("\nTotal number of solutions checked: ", solutionsChecked)
-        print ("Best value found so far: ", f_best)        
-    
 print ("\nFinal number of solutions checked: ", solutionsChecked)
-print ("Best value found: ", f_best[0])
-print ("Weight is: ", f_best[1])
-print ("Total number of items selected: ", np.sum(x_best))
-print ("Best solution: ", x_best)
+print ("Best value found: ", f_curr[0])
+print ("Weight is: ", f_curr[1])
+print ("Total number of items selected: ", np.sum(x_curr))
+print ("Best solution: ", x_curr)
