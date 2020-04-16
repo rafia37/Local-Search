@@ -4,7 +4,7 @@
 #Student name: Rafia Bushra
 #Date: 04/15/20
 
-
+import pdb
 from random import Random   
 import numpy as np
 
@@ -49,26 +49,39 @@ def evaluate(x):
        
 
 #1-flip neighborhood of solution x         
-def neighborhood(x):
+def neighborhood(x, k=5):
         
     nbrhood = []     
     
     for i in range(0,n):
-        nbrhood.append(x[:])
-        if nbrhood[i][i] == 1:
-            nbrhood[i][i] = 0
-        else:
-            nbrhood[i][i] = 1
-      
+        nbrhood.append(np.copy(x))
+        for j in range(k):
+            if nbrhood[i][i+j] == 1:
+                nbrhood[i][i+j] = 0
+            else:
+                nbrhood[i][i+j] = 1
+        
     return nbrhood
           
 
 
 #create the initial solution
 def initial_solution():
-    x = []   #i recommend creating the solution as a list
+    sorted_w = np.sort(weights)
     
-    #need logic here!
+    temp_w = 0  #weight tracker
+    i = len(weights) - 1 #counter that's going to count down
+    num_ones = 0 #number of 1s I need in my solution
+    
+    #A while loop to ensure that the initial solution is not going to be infeasible
+    while temp_w <= maxWeight:
+        temp_w += sorted_w[i]
+        i -= 1
+        num_ones += 1
+    
+    x = np.zeros(n, dtype=int) #initializing solution array
+    best_val_ind = np.argsort(value)[-num_ones:] #indices of the first few (=num_ones) highest values
+    x[best_val_ind] = 1 #taking some highest value items
         
     return x
 
