@@ -111,32 +111,40 @@ solutionsChecked = 0
 x_curr = initial_solution() 
 f_curr = evaluate(x_curr)
 
-logger.info("initial solution and total items: {} {}".format(x_curr, np.sum(x_curr)))
-logger.info("initial evaluation: {}".format(f_curr))
+logger.info("initial solution and total items: {} {} \n".format(x_curr, np.sum(x_curr)))
+logger.info("initial evaluation: {} \n".format(f_curr))
 
 #begin local search overall logic ----------------
-k_max = 5   #total number of k-flip neighborhoods
+k_max = 3   #total number of k-flip neighborhoods
 k = 1       #starting with 1-flip neighborhood 
     
 while k<=k_max:
-    print("checking {}-flip neighborhood".format(k))     
+    logger.info("checking {}-flip neighborhood \n".format(k))     
     
     Neighborhood = neighborhood(x_curr, k)   #create a list of all neighbors in the neighborhood of x_curr
     solutionsChecked += len(Neighborhood)
-
+    logger.debug("current solution {} \n".format(x_curr))
+    logger.debug("current neighborhood {} \n".format(Neighborhood))
+    
     s_values = [evaluate(s)[0] for s in Neighborhood]
-    s = Neighborhood[np.nanargmax(s_values)]  #Best neighbor in the current neighborhood
+    s_weights = [evaluate(s)[1] for s in Neighborhood] 
+    try:
+        s = Neighborhood[np.nanargmax(s_values)]  #Best neighbor in the current neighborhood
+    except:
+        #logger.debug("Entered try/except {} {} \n".format(s_values, s_weights))
+        continue
     f_s = evaluate(s)
     
     #if this neighbor is better than current solution, accept this move
-    if  f_s[0] < f_curr[0]:        
+    if  f_s[0] > f_curr[0]:        
         x_curr = np.copy(s)        
         f_curr = np.copy(f_s)
         k = 1
     else:
         k += 1
 
-    print("current best solution {}".format(f_curr[0]))
+    logger.info("current best solution {} \n".format(f_curr[0]))
+    print("current solution {} {} \n".format(f_curr[0], x_curr))
         
 print ("\nFinal number of solutions checked: ", solutionsChecked)
 print ("Best value found: ", f_curr[0])
