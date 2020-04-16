@@ -5,9 +5,19 @@
 #Date: 04/15/20
 
 import pdb
+import logging
+from datetime import datetime
 from random import Random   
 import numpy as np
 
+#setting up logging file & logger
+now = datetime.now()
+log_fname = "log_files/vns_"+now.strftime("%m%d_%H%M")+".log"
+LOG_FORMAT = "%(lineno)d %(levelname)s %(asctime)s - %(message)s"
+logging.basicConfig(filename=log_fname,
+                    level=logging.DEBUG,
+                    format = LOG_FORMAT)
+logger = logging.getLogger()
 
 seed = 5113
 myPRNG = Random(seed)
@@ -101,7 +111,8 @@ solutionsChecked = 0
 x_curr = initial_solution() 
 f_curr = evaluate(x_curr)
 
-
+logger.info("initial solution and total items: {} {}".format(x_curr, np.sum(x_curr)))
+logger.info("initial evaluation: {}".format(f_curr))
 
 #begin local search overall logic ----------------
 k_max = 5   #total number of k-flip neighborhoods
