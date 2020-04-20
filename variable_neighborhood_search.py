@@ -103,7 +103,6 @@ def initial_solution():
 
 
 
-
 #varaible to record the number of solutions evaluated
 solutionsChecked = 0
 
@@ -115,39 +114,58 @@ logger.info("initial solution and total items: {} {} \n".format(x_curr, np.sum(x
 logger.info("initial evaluation: {} \n".format(f_curr))
 
 #begin local search overall logic ----------------
-k_max = 3   #total number of k-flip neighborhoods
+k_max = 5   #total number of k-flip neighborhoods
 k = 1       #starting with 1-flip neighborhood 
-    
-while k<=k_max:
-    logger.info("checking {}-flip neighborhood \n".format(k))     
-    
-    Neighborhood = neighborhood(x_curr, k)   #create a list of all neighbors in the neighborhood of x_curr
-    solutionsChecked += len(Neighborhood)
-    logger.debug("current solution {} \n".format(x_curr))
-    logger.debug("current neighborhood {} \n".format(Neighborhood))
-    
-    s_values = [evaluate(s)[0] for s in Neighborhood]
-    s_weights = [evaluate(s)[1] for s in Neighborhood] 
-    try:
-        s = Neighborhood[np.nanargmax(s_values)]  #Best neighbor in the current neighborhood
-    except:
-        #logger.debug("Entered try/except {} {} \n".format(s_values, s_weights))
-        continue
-    f_s = evaluate(s)
-    
-    #if this neighbor is better than current solution, accept this move
-    if  f_s[0] > f_curr[0]:        
-        x_curr = np.copy(s)        
-        f_curr = np.copy(f_s)
-        k = 1
-    else:
-        k += 1
 
-    logger.info("current best solution {} \n".format(f_curr[0]))
-    print("current solution {} {} \n".format(f_curr[0], x_curr))
+
+
+#A local search algorithm
+#In this case, LS is Variable Neighborhood Descent (VND) Algorithm
+def LS(init_s, k=1, k_max=5):
+
+    curr_s = np.copy(init_s)
+    curr_f = evaluate(init_s)
+
+    logger.info("--------Entered VND algorithm--------\n")
+
+    while k<=k_max:
+        
+        logger.info("checking {}-flip neighborhood \n".format(k))     
+    
+        Neighborhood = neighborhood(curr_s, k)   #create a list of all neighbors in the neighborhood of x_curr
+    
+        logger.debug("current solution {} \n".format(x_curr))
+        logger.debug("current neighborhood {} \n".format(Neighborhood))
+    
+        s_values = [evaluate(s)[0] for s in Neighborhood]
+        
+
+        try:
+            s = Neighborhood[np.nanargmax(s_values)]  #Best neighbor in the current neighborhood
+        except:
+            print("No feasible solution in the neighborhood")
+            break
+        f_s = evaluate(s)
+    
+        #if this neighbor is better than current solution, accept this move
+        if  f_s[0] > curr_f[0]:
+            curr_x = np.copy(s)        
+            curr_f = np.copy(f_s)
+            k = 1
+        else:
+            k += 1
+
+        logger.info("current best solution {} \n".format(curr_f[0]))
+        print("current solution {} {} \n".format(curr_f[0], curr_x))
+    
+    logger.info("--------Exiting VND algorithm-------- \n")
+    return curr_x, curr_f
+
+ix = initial_solution()    
+nx, nf = LS(ix)
         
 print ("\nFinal number of solutions checked: ", solutionsChecked)
-print ("Best value found: ", f_curr[0])
-print ("Weight is: ", f_curr[1])
-print ("Total number of items selected: ", np.sum(x_curr))
-print ("Best solution: ", x_curr)
+print ("Best value found: ", nf[0])
+print ("Weight is: ", nf[1])
+print ("Total number of items selected: ", np.sum(nx))
+print ("Best solution: ", nx)
