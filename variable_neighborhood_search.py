@@ -103,22 +103,6 @@ def initial_solution():
 
 
 
-#varaible to record the number of solutions evaluated
-solutionsChecked = 0
-
-#initializing current solution
-x_curr = initial_solution() 
-f_curr = evaluate(x_curr)
-
-logger.info("initial solution and total items: {} {} \n".format(x_curr, np.sum(x_curr)))
-logger.info("initial evaluation: {} \n".format(f_curr))
-
-#begin local search overall logic ----------------
-k_max = 5   #total number of k-flip neighborhoods
-k = 1       #starting with 1-flip neighborhood 
-
-
-
 #A local search algorithm
 #In this case, LS is Variable Neighborhood Descent (VND) Algorithm
 def LS(init_s, k=1, k_max=5):
@@ -161,8 +145,41 @@ def LS(init_s, k=1, k_max=5):
     logger.info("--------Exiting VND algorithm-------- \n")
     return curr_x, curr_f
 
-ix = initial_solution()    
-nx, nf = LS(ix)
+
+
+#varaible to record the number of solutions evaluated
+solutionsChecked = 0
+
+#initializing current solution
+x_curr = initial_solution() 
+f_curr = evaluate(x_curr)
+
+logger.info("initial solution and total items: {} {} \n".format(x_curr, np.sum(x_curr)))
+logger.info("initial evaluation: {} \n".format(f_curr))
+
+#begin local search overall logic ----------------
+k_max = 5   #total number of k-flip neighborhoods
+
+done = 0
+
+while done==0:
+    k = 1
+
+    while k<=k_max:
+        Neighborhood = neighborhood(x_curr, k)
+        s0 = Neighborhood[myPRNG.randint(0,len(Neighborhood)-1)]
+        s1, f_s1 = LS(s0)
+        
+        if f_s1[0] > f_curr[0]:
+            x_curr = np.copy(s1)
+            f_curr = np.copy(f_s1)
+            k=1
+        else:
+            k += 1
+
+    if k == 1:
+        done = 1
+
         
 print ("\nFinal number of solutions checked: ", solutionsChecked)
 print ("Best value found: ", nf[0])
