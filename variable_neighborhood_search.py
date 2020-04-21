@@ -105,7 +105,7 @@ def initial_solution():
 
 #A local search algorithm
 #In this case, LS is Variable Neighborhood Descent (VND) Algorithm
-def LS(init_s, k=1, k_max=5):
+def LS(init_s, k=1, k_max=4):
 
     curr_s = np.copy(init_s)
     curr_f = evaluate(init_s)
@@ -118,7 +118,7 @@ def LS(init_s, k=1, k_max=5):
     
         Neighborhood = neighborhood(curr_s, k)   #create a list of all neighbors in the neighborhood of x_curr
     
-        logger.debug("current solution {} \n".format(x_curr))
+        logger.debug("current solution {} \n".format(curr_s))
         logger.debug("current neighborhood {} \n".format(Neighborhood))
     
         s_values = [evaluate(s)[0] for s in Neighborhood]
@@ -133,17 +133,18 @@ def LS(init_s, k=1, k_max=5):
     
         #if this neighbor is better than current solution, accept this move
         if  f_s[0] > curr_f[0]:
-            curr_x = np.copy(s)        
+            curr_s = np.copy(s)        
             curr_f = np.copy(f_s)
             k = 1
         else:
             k += 1
+        
 
         logger.info("current best solution {} \n".format(curr_f[0]))
-        print("current solution {} {} \n".format(curr_f[0], curr_x))
+        print("current solution {} \n".format(curr_f[0]))
     
     logger.info("--------Exiting VND algorithm-------- \n")
-    return curr_x, curr_f
+    return curr_s, curr_f
 
 
 
@@ -158,17 +159,22 @@ logger.info("initial solution and total items: {} {} \n".format(x_curr, np.sum(x
 logger.info("initial evaluation: {} \n".format(f_curr))
 
 #begin local search overall logic ----------------
-k_max = 5   #total number of k-flip neighborhoods
+k_max = 4   #total number of k-flip neighborhoods
 
 done = 0
 
+counter = 0
 while done==0:
     k = 1
 
     while k<=k_max:
         Neighborhood = neighborhood(x_curr, k)
-        s0 = Neighborhood[myPRNG.randint(0,len(Neighborhood)-1)]
+        N_values = [evaluate(s)[0] for s in Neighborhood]
+        shaking = myPRNG.randint(0,len(Neighborhood)-1)
+        s0 = Neighborhood[shaking]
+        f_s0 = evaluate(s0)
         s1, f_s1 = LS(s0)
+        
         
         if f_s1[0] > f_curr[0]:
             x_curr = np.copy(s1)
@@ -176,13 +182,14 @@ while done==0:
             k=1
         else:
             k += 1
-
-    if k == 1:
+    
+    counter += 1 
+    if counter == 5:
         done = 1
 
         
 print ("\nFinal number of solutions checked: ", solutionsChecked)
-print ("Best value found: ", nf[0])
-print ("Weight is: ", nf[1])
-print ("Total number of items selected: ", np.sum(nx))
-print ("Best solution: ", nx)
+print ("Best value found: ", f_curr[0])
+print ("Weight is: ", f_curr[1])
+print ("Total number of items selected: ", np.sum(x_curr))
+print ("Best solution: ", x_curr)
