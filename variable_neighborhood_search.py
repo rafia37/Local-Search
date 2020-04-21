@@ -112,6 +112,7 @@ def LS(init_s, k=1, k_max=4):
 
     logger.info("--------Entered VND algorithm--------\n")
 
+    counter = 0
     while k<=k_max:
         
         logger.info("checking {}-flip neighborhood \n".format(k))     
@@ -122,7 +123,7 @@ def LS(init_s, k=1, k_max=4):
         logger.debug("current neighborhood {} \n".format(Neighborhood))
     
         s_values = [evaluate(s)[0] for s in Neighborhood]
-        
+        counter += 1
 
         try:
             s = Neighborhood[np.nanargmax(s_values)]  #Best neighbor in the current neighborhood
@@ -144,7 +145,7 @@ def LS(init_s, k=1, k_max=4):
         print("current solution {} \n".format(curr_f[0]))
     
     logger.info("--------Exiting VND algorithm-------- \n")
-    return curr_s, curr_f
+    return curr_s, curr_f, counter
 
 
 
@@ -169,12 +170,19 @@ while done==0:
 
     while k<=k_max:
         Neighborhood = neighborhood(x_curr, k)
-        N_values = [evaluate(s)[0] for s in Neighborhood]
-        shaking = myPRNG.randint(0,len(Neighborhood)-1)
-        s0 = Neighborhood[shaking]
-        f_s0 = evaluate(s0)
-        s1, f_s1 = LS(s0)
-        
+        N_values = [evaluate(s)[0] for s in Neighborhood]  #values for each solution int he neighborhood
+        feasible_N = np.array(Neighborhood)[np.isfinite(N_values)]   #feasible neighborhood
+        solutionsChecked += 1
+
+        #If there are no feasible solutions in the neighborhood
+        #break out of the loop
+        if len(feasible_N)==0:
+            break
+
+        shaking = myPRNG.randint(0,len(feasible_N)-1)      #"shaking" to get a random solution
+        s0 = feasible_N[shaking]  
+        s1, f_s1, c = LS(s0)
+        solutionsChecked += c
         
         if f_s1[0] > f_curr[0]:
             x_curr = np.copy(s1)
@@ -184,7 +192,8 @@ while done==0:
             k += 1
     
     counter += 1 
-    if counter == 5:
+    print(counter)
+    if counter == 10:
         done = 1
 
         
