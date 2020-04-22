@@ -6,20 +6,16 @@ import problem_instance as pi
 
 #importing problem-specific variables
 myPRNG = pi.myPRNG
-value = pi.value
-weights = pi.weights
+value = np.array(pi.value)
+weights = np.array(pi.weights)
 maxWeight = pi.maxWeight
 n = pi.n
 
 #function to evaluate a solution x
 def evaluate(x):
-          
-    a=np.array(x)
-    b=np.array(value)
-    c=np.array(weights)
     
-    totalValue = np.dot(a,b)     #compute the value of the knapsack selection
-    totalWeight = np.dot(a,c)    #compute the weight value of the knapsack selection
+    totalValue = np.dot(x,value)     #compute the value of the knapsack selection
+    totalWeight = np.dot(x,weights)    #compute the weight value of the knapsack selection
     
     if totalWeight > maxWeight:
         totalValue = np.nan
@@ -47,7 +43,7 @@ def neighborhood(x, k=1):
             else:
                 nbrhood[i][a] = 1
             
-    return nbrhood
+    return np.array(nbrhood)
           
 
 

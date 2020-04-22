@@ -105,7 +105,7 @@ while done==0:
     while k<=k_max:
         Neighborhood = cf.neighborhood(x_curr, k)
         N_values = [cf.evaluate(s)[0] for s in Neighborhood]  #values for each solution int he neighborhood
-        feasible_N = np.array(Neighborhood)[np.isfinite(N_values)]   #feasible neighborhood
+        feasible_N = Neighborhood[np.isfinite(N_values)]   #feasible neighborhood
         solutionsChecked += 1
 
         #If there are no feasible solutions in the neighborhood
@@ -127,7 +127,7 @@ while done==0:
     
     counter += 1 
     print(counter)
-    if counter == 5:
+    if counter == 50:
         done = 1
 
         
