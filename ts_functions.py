@@ -4,11 +4,18 @@ import numpy as np
 import problem_instance as pi
 
 
-def tabu_criteria():
-    return
+def tabu_criteria(new_solution, old_solution):
 
-def tabu_tenure():
-    return
+    #find the index where flip occurred
+    temp = np.where(new_solution!=old_solution)[0]
+    
+    if len(temp)>1:
+        print("WARNING found more than one flip")
+
+    ind = temp[0]
+
+    return ind
+
 
 def aspiration_criteria():
     return
@@ -36,11 +43,7 @@ def st_memory(update_ind, tenure = 3, init = False, mem = 0):
 
     return mem
 
-mem1 = np.zeros(pi.n, dtype=int)
-mem1[3] = 3
-mem1[5] = 2
-mem1[7] = 1
-print(st_memory(0, mem=mem1))
+
 
 #Long term memory
 def lt_memory():
