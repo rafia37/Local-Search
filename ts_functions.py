@@ -37,7 +37,7 @@ def aspiration_criteria(curr_value=0, val_history=[], neighborhood = [], values=
 
 
 
-def tabu_active(sMem, sMemVal, Neighborhood):
+def tabu_active(sMem, sMemVal, Neighborhood, cVal, valHist):
 
     #indices of tabu active elements
     active_ind = np.where(sMem>0)[0]
@@ -56,8 +56,15 @@ def tabu_active(sMem, sMemVal, Neighborhood):
             #do not include this solution and,
             #break out of this loop as soon as you find the first tabu active element
             if (N[a] == sMemVal[a]):
-                not_tabu_active = 0
-                break
+                #unless aspiration criteria is satisfied
+                exception = aspiration_criteria(curr_value = cVal, val_hist = valHist)
+
+                if exception:
+                    continue
+                else:
+                    not_tabu_active = 0
+                    break
+
         #If there are no tabu active members, add this solution
         if not_tabu_active:
             newN.append(N)
@@ -68,7 +75,7 @@ def tabu_active(sMem, sMemVal, Neighborhood):
 
 
 #Short term memory
-def st_memory(update_ind, tenure = 3, init = False, mem = 0, solution = 0):
+def st_memory(update_ind=0, tenure = 3, init = False, mem = 0, solution = 0):
     """
         update_ind: index of the element that was flipped
         solution: this is the candidate solution. we want the flipped value
