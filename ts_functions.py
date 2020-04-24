@@ -28,10 +28,13 @@ def aspiration_criteria(curr_value=0, val_history=[], neighborhood = [], values=
     else:   
         #if the current solution is higher than the best found so far
         #accept it even if it's tabu
-        max_val_so_far = np.nanmax(np.array(val_history))
         accept = 0
-        if curr_val > max_val_so_far:
-            accept = 1
+        try:
+            max_val_so_far = np.nanmax(np.array(val_history))
+            if curr_val > max_val_so_far:
+                accept = 1
+        except:
+            pass
 
         return accept
 
@@ -55,9 +58,9 @@ def tabu_active(sMem, sMemVal, Neighborhood, cVal, valHist):
             #If there is even one tabu_active member -
             #do not include this solution and,
             #break out of this loop as soon as you find the first tabu active element
-            if (N[a] == sMemVal[a]):
+            if (N[a] != sMemVal[a]):
                 #unless aspiration criteria is satisfied
-                exception = aspiration_criteria(curr_value = cVal, val_hist = valHist)
+                exception = aspiration_criteria(curr_value = cVal, val_history = valHist)
 
                 if exception:
                     continue
@@ -75,7 +78,7 @@ def tabu_active(sMem, sMemVal, Neighborhood, cVal, valHist):
 
 
 #Short term memory
-def st_memory(update_ind=0, tenure = 3, init = False, mem = 0, solution = 0):
+def st_memory(update_ind=0, tenure = 3, init = False, mem = 0, memValue = 0, solution = 0):
     """
         update_ind: index of the element that was flipped
         solution: this is the candidate solution. we want the flipped value
@@ -88,7 +91,7 @@ def st_memory(update_ind=0, tenure = 3, init = False, mem = 0, solution = 0):
 
     else:       #else update memory
         #if memory is to be updated but old memory is not provided, raise error
-        if (type(mem)==int) | (type(solution)==int):
+        if (type(mem)==int) | (type(memValue)==int) | (type(solution)==int):
             print("Need to provide old memory and solution if you want to update memory \n")
             print("Old memory and solution needs to be an array of size n \n")
             raise TypeError
